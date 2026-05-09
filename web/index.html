@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Lobster&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap"
+    rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <!-- Box Icons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <!-- CSS Sheets -->
+  <link rel="icon" href="/static/assets/logo.png" type="image/png" />
+  <link rel="stylesheet" href="/static/styles/styles.css" />
+  <link rel="stylesheet" href="/static/styles/signup.css" />
+  <link rel="stylesheet" href="/static/styles/toast.css" />
+  <title>Forum</title>
+</head>
+
+<body class="flex flex-col min-h-screen">
+  <div id="navbar"></div>
+
+  <div class="flex flex-row flex-grow min-h-0" id="main-layout">
+    <div id="userlist" class="w-20 sm:w-48 lg:w-64 flex-shrink-0 bg-gray-800 sticky top-0 h-screen overflow-y-auto border-r border-gray-700">
+    </div>
+    <main id="root" class="flex-1 w-full flex min-w-0"></main>
+  </div>
+
+  <div id="footer"></div>
+
+  <script type="module" src="/static/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,179 @@
+package handlers
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
+
+	database "forum/pkg/db"
+	helpers "forum/pkg/helpers"
+	models "forum/pkg/models"
+)
+
+// Middleware to ensure user is authenticated
+func AuthRequired(next http.HandlerFunc, db *database.DBWrapper) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := helpers.GetCurrentUser(db, r)
+		if err != nil {
+			helpers.Error(w, "Unauthorized", http.StatusUnauthorized, err)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+}
+
+// Registration Handler
+func RegisterHandler(db *database.DBWrapper) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			helpers.Error(w, "invalid method", http.StatusMethodNotAllowed, fmt.Errorf("invalid method: %s", r.Method))
+			return
+		}
+
+		var user models.User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			helpers.Error(w, "Invalid input", http.StatusBadRequest, err)
+			return
+		}
+
+		// Validate required fields
+		if user.Username == "" || user.Email == "" || user.Password == "" || user.FirstName == "" || user.LastName == "" || user.Gender == "" {
+			helpers.Error(w, "All fields are required", http.StatusBadRequest, fmt.Errorf("missing required fields"))
+			return
+		}
+
+		if user.Age < 14 {
+			helpers.Error(w, "Age must be at least 14", http.StatusBadRequest, fmt.Errorf("invalid age: %d", user.Age))
+			return
+		}
+
+		if len(user.Username) < 3 {
+			helpers.Error(w, "Username must be at least 3 characters", http.StatusBadRequest, fmt.Errorf("username too short: %s", user.Username))
+			return
+		}
+
+		if len(user.Password) < 4 {
+			helpers.Error(w, "Password must be at least 4 characters", http.StatusBadRequest, fmt.Errorf("password too short"))
+			return
+		}
+
+		err = helpers.RegisterUser(db.DB.DBConn, &user)
+		if err != nil {
+			helpers.Error(w, "Could not register user", http.StatusBadRequest, err)
+			fmt.Println(err)
+			return
+		}
+
+		// Automatically log in the user after registration
+		sessionToken, err := helpers.CreateSession(db.DB.DBConn, user.ID)
+		if err != nil {
+			helpers.Error(w, "Error creating session", http.StatusInternalServerError, err)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_token",
+			Value:    sessionToken,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(24 * time.Hour),
+		})
+
+		w.WriteHeader(http.StatusOK)
+
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "User registered and logged in successfully",
+			"user":    user,
+		})
+	}
+}
+
+// Login Handler
+func LoginHandler(db *database.DBWrapper) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			helpers.Error(w, "Invalid Method", http.StatusMethodNotAllowed, fmt.Errorf("invalid method: %s", r.Method))
+			return
+		}
+
+		var creds struct {
+			Identifier string `json:"identifier"`
+			Password   string `json:"password"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&creds)
+		if err != nil {
+			helpers.Error(w, "Invalid input", http.StatusBadRequest, err)
+			return
+		}
+
+		u, err := helpers.AuthenticateUser(db.DB.DBConn, creds.Identifier, creds.Password)
+		if err != nil {
+			helpers.Error(w, "Invalid credentials", http.StatusBadRequest, err)
+			return
+		}
+
+		sessionToken, err := helpers.CreateSession(db.DB.DBConn, u.ID)
+		if err != nil {
+			helpers.Error(w, "Error creating session", http.StatusInternalServerError, err)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_token",
+			Value:    sessionToken,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(24 * time.Hour),
+		})
+		w.WriteHeader(http.StatusOK)
+
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "User logged in successfully",
+			"user":    u,
+		})
+	}
+}
+
+// Logout Handler
+func LogoutHandler(db *database.DBWrapper) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session_token")
+		if err == nil {
+			helpers.DeleteSession(db.DB.DBConn, cookie.Value)
+			http.SetCookie(w, &http.Cookie{
+				Name:     "session_token",
+				Value:    "",
+				Path:     "/",
+				HttpOnly: true,
+				Expires:  time.Unix(0, 0),
+			})
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func CurrentUserHandler(db *database.DBWrapper) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, err := helpers.GetCurrentUser(db, r)
+		if err != nil {
+			helpers.Error(w, "Unauthorized", http.StatusUnauthorized, err)
+			return
+		}
+
+		// Fetch user's posts
+		posts, err := GetPostsByUserID(db.DB.DBConn, user.ID)
+		if err != nil {
+			helpers.Error(w, "Could not get user's posts", http.StatusInternalServerError, err)
+			return
+		}
+
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"user":  user,
+			"posts": posts,
+		})
+	}
+}

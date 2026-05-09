@@ -1,0 +1,253 @@
+/* Base page background */
+body {
+  background-color: #0b1220;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+#root,
+#posts,
+#categories,
+#chat-messages {
+  min-width: 0;
+}
+
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: anywhere;
+}
+
+/* Post / category cards: fill grid cell height */
+#posts > a,
+#categories > a {
+  display: flex;
+}
+
+#posts > a > div,
+#categories > a > div {
+  width: 100%;
+}
+
+/* Clamp utilities */
+.line-clamp {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-title {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+/* Account dropdown */
+.user-menu-panel {
+  left: auto !important;
+  right: 0;
+  width: 16rem;
+  max-width: min(90vw, 20rem);
+  min-height: auto !important;
+}
+
+/* Hide nav scrollbar */
+nav::-webkit-scrollbar { display: none; }
+nav { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Chat spacing on small screens */
+@media (max-width: 639.98px) {
+  .user-menu-panel {
+    width: min(92vw, 18rem);
+    padding-inline: 1rem !important;
+  }
+  #chat-messages > div { padding: 0.875rem !important; }
+  #chat-form { margin: 0.75rem !important; gap: 0.5rem !important; }
+  #chat-input { height: 2.75rem; }
+  #userlist .text-xl { font-size: 1rem; line-height: 1.5rem; }
+
+  /* Compact sidebar: show only avatars */
+  #userlist #chat-users a {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  #userlist #chat-users a .flex.flex-1 { display: none; }
+  #userlist h2 {
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  #root { min-height: 0; flex: 1; }
+}
+
+.filter-button {
+  background-color: #bb8493;
+}
+.filter-button:hover {
+  background-color: #dbafa0;
+}
+
+#filter-form {
+  background-color: #704264;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Theme overrides (colors only)
+/*
+  This app uses Tailwind utility classes inline (e.g. bg-gray-800).
+  To update the color scheme without changing HTML/JS, we remap the most-used
+  Tailwind color utilities to a cohesive, accessible dark palette.
+*/
+/* -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  --t-bg: #0b1220;
+  --t-surface-1: #0f172a; /* replaces gray-900 */
+  --t-surface-2: #111c33; /* replaces gray-800 */
+  --t-surface-3: #162546; /* replaces gray-700 */
+  --t-surface-4: #20315a; /* replaces gray-600 */
+  --t-surface-5: #2b4173; /* replaces gray-500 */
+
+  --t-text: #e5e7eb;      /* gray-200/100-ish */
+  --t-text-muted: #a7b2c5;/* gray-400-ish */
+  --t-text-dim: #7f8aa3;  /* gray-500-ish */
+
+  --t-border: #243457;    /* border-gray-700 */
+  --t-border-strong: #2f4470; /* border-gray-600 */
+  --t-hover: #1b2c52;
+  --t-hover-strong: #233a6a;
+}
+
+body {
+  background-color: var(--t-bg) !important;
+  color: var(--t-text);
+}
+
+/* Background remaps */
+.bg-gray-900 {
+  background-color: var(--t-surface-1) !important;
+}
+.bg-gray-800 {
+  background-color: var(--t-surface-2) !important;
+}
+.bg-gray-700 {
+  background-color: var(--t-surface-3) !important;
+}
+.bg-gray-600 {
+  background-color: var(--t-surface-4) !important;
+}
+.bg-gray-500 {
+  background-color: var(--t-surface-5) !important;
+}
+
+/* Light backgrounds used on auth inputs */
+.bg-gray-200,
+.bg-gray-100,
+.bg-white {
+  background-color: var(--t-surface-4) !important;
+}
+
+/* Text remaps */
+.text-white {
+  color: var(--t-text) !important;
+}
+.text-gray-300 {
+  color: var(--t-text) !important;
+}
+.text-gray-400 {
+  color: var(--t-text-muted) !important;
+}
+.text-gray-500 {
+  color: var(--t-text-dim) !important;
+}
+.text-gray-900,
+.text-black {
+  color: var(--t-text) !important;
+}
+
+/* Borders */
+.border-gray-700 {
+  border-color: var(--t-border) !important;
+}
+.border-gray-600 {
+  border-color: var(--t-border-strong) !important;
+}
+.border-white {
+  border-color: var(--t-border-strong) !important;
+}
+
+/* Hover background utilities */
+.hover\:bg-gray-800:hover {
+  background-color: var(--t-hover) !important;
+}
+.hover\:bg-gray-700:hover {
+  background-color: var(--t-hover-strong) !important;
+}
+.hover\:bg-gray-600:hover {
+  background-color: var(--t-hover-strong) !important;
+}
+
+/* Inputs focus states used in Navbar */
+.focus\:bg-white:focus {
+  background-color: var(--t-surface-4) !important;
+}
+.focus\:text-gray-900:focus {
+  color: var(--t-text) !important;
+}
+.placeholder\:text-gray-400::placeholder {
+  color: var(--t-text-dim) !important;
+}
+.focus\:placeholder\:text-gray-500:focus::placeholder {
+  color: var(--t-text-muted) !important;
+}
+
+/* Rings (keep indigo accent, but ensure offset matches new surfaces) */
+.focus\:ring-offset-gray-800:focus {
+  --tw-ring-offset-color: var(--t-surface-2) !important;
+}
+
+/* Reduce default HR contrast slightly */
+.border-gray-600 {
+  border-color: var(--t-border-strong) !important;
+}
+
+/* Equal height grid rows for posts */
+.grid-auto-rows-1fr {
+  grid-auto-rows: 1fr;
+}
+
+/* Minimal height grid rows for compact layout */
+.auto-rows-min {
+  grid-auto-rows: min-content;
+}
